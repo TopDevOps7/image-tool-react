@@ -5,6 +5,18 @@ import Footer from "../elements/footer";
 import { Link } from "react-router-dom";
 
 export default class Settings extends Component {
+  componentDidMount() {
+    let header = document.getElementById("sidebarContent");
+    let navs = header.getElementsByClassName("nav-item");
+    for (let i = 0; i < navs.length; i++) {
+      navs[i].addEventListener("click", function () {
+        let current = document.getElementsByClassName("active");
+        current[0].className = current[0].className.replace(" active", "");
+      });
+    }
+    document.getElementById("navSetting").classList.add("active");
+  }
+
   render() {
     return (
       <div>

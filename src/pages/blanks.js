@@ -22,9 +22,20 @@ export default class Blanks extends Component {
   };
 
   componentDidMount() {
+    let header = document.getElementById("sidebarContent");
+    let navs = header.getElementsByClassName("nav-item");
+    for (let i = 0; i < navs.length; i++) {
+      navs[i].addEventListener("click", function () {
+        let current = document.getElementsByClassName("active");
+        current[0].className = current[0].className.replace(" active", "");
+      });
+    }
+    document.getElementById("navBlank").classList.add("active");
+
     axios
       .get(this.url + "fileupload", { params: { token: this.token } })
       .then((response) => {
+        this.file = "";
         const files = response.data.data.files;
         this.setState({ files: files });
       })
@@ -36,8 +47,11 @@ export default class Blanks extends Component {
 
   handleChange = (event) => {
     event.preventDefault();
-    this.file = event.target.files[0];
-    document.getElementById("fileLabel").innerHTML = event.target.files[0].name;
+    if (event.target.files[0]) {
+      this.file = event.target.files[0];
+      document.getElementById("fileLabel").innerHTML =
+        event.target.files[0].name;
+    }
   };
 
   handleSubmit = (event) => {
@@ -56,8 +70,6 @@ export default class Blanks extends Component {
         if (result.data.status) {
           this.componentDidMount();
           this.setState({ redirect: true, isLoading: false, showModal: false });
-          document.getElementById("fileInput").value = null;
-          document.getElementById("fileLabel").innerHTML = "Choose file";
         }
       })
       .catch((error) => {
@@ -123,7 +135,7 @@ export default class Blanks extends Component {
                 show={this.state.showModal}
                 onHide={() => {
                   this.setState({ showModal: false });
-                  document.getElementById("fileInput").value = null;
+                  this.file = "";
                 }}
                 size="sm"
                 aria-labelledby="contained-modal-title-vcenter"
