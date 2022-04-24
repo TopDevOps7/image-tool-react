@@ -57,10 +57,13 @@ class FirstStep extends React.Component {
     return (
       <div className="row">
         {this.state.files.map((files) => (
-          <div className="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3" key={files.id}>
+          <div
+            className="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3"
+            key={files.id}
+          >
             <img
               src={this.url + "/uploads/students/" + files.name}
-              style={{ width: "100%", cursor: "pointer" }}
+              style={{ width: "100%", height: "100%", cursor: "pointer" }}
               alt={files.name}
               onClick={() => this.isValidated(files)}
             />
@@ -71,7 +74,11 @@ class FirstStep extends React.Component {
               fill="green"
               class="bi bi-bookmark-check"
               viewBox="0 0 16 16"
-              style={{ position: "absolute", margin: "3px -30px", display: "none" }}
+              style={{
+                position: "absolute",
+                margin: "3px -30px",
+                display: "none",
+              }}
               id={"blank_" + files.id}
             >
               <path
@@ -138,10 +145,13 @@ class SecondStep extends React.Component {
     return (
       <div className="row">
         {this.state.files.map((files) => (
-          <div className="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3" key={files.id}>
+          <div
+            className="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3"
+            key={files.id}
+          >
             <img
               src={this.url + "/uploads/students/" + files.name}
-              style={{ width: "100%", cursor: "pointer" }}
+              style={{ width: "100%", height: "100%", cursor: "pointer" }}
               alt={files.name}
               onClick={() => this.isValidated(files)}
             />
@@ -152,7 +162,11 @@ class SecondStep extends React.Component {
               fill="green"
               class="bi bi-bookmark-check"
               viewBox="0 0 16 16"
-              style={{ position: "absolute", margin: "3px -30px", display: "none" }}
+              style={{
+                position: "absolute",
+                margin: "3px -30px",
+                display: "none",
+              }}
               id={"design_" + files.id}
             >
               <path
@@ -178,7 +192,21 @@ class ThirdStep extends React.Component {
     if (localStorage.getItem("selectedBlank")) {
       let canvas = document.getElementById("viewport");
       let context = canvas.getContext("2d");
-      context.drawImage(document.getElementById("selectedBlankImg"), 0, 0);
+      // context.drawImage(document.getElementById("selectedBlankImg"), 0, 0);
+
+      const image = new Image();
+      image.src =
+        this.url +
+        "/uploads/students/" +
+        JSON.parse(localStorage.getItem("selectedBlank")).name;
+      console.log(
+        this.url +
+          "/uploads/students/" +
+          JSON.parse(localStorage.getItem("selectedBlank")).name
+      );
+      image.onload = () => {
+        context.drawImage(image, 0, 0, this.canvas.width, this.canvas.height);
+      };
     }
   }
 
@@ -186,28 +214,42 @@ class ThirdStep extends React.Component {
     return (
       <div className="row">
         <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
-          <canvas id="viewport" style={{ width: "100%" }}></canvas>
+          <canvas
+            id="viewport"
+            style={{ width: "100%", height: "100%" }}
+          ></canvas>
         </div>
         <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
-          {localStorage.getItem("selectedBlank") && localStorage.getItem("selectedDesign") && (
-            <div className="row">
-              <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
-                <img
-                  id="selectedBlankImg"
-                  src={this.url + "/uploads/students/" + JSON.parse(localStorage.getItem("selectedBlank")).name}
-                  style={{ width: "100%" }}
-                  alt={JSON.parse(localStorage.getItem("selectedBlank")).name}
-                />
+          {localStorage.getItem("selectedBlank") &&
+            localStorage.getItem("selectedDesign") && (
+              <div className="row">
+                <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+                  <img
+                    id="selectedBlankImg"
+                    src={
+                      this.url +
+                      "/uploads/students/" +
+                      JSON.parse(localStorage.getItem("selectedBlank")).name
+                    }
+                    style={{ width: "100%", height: "100%" }}
+                    alt={JSON.parse(localStorage.getItem("selectedBlank")).name}
+                  />
+                </div>
+                <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+                  <img
+                    src={
+                      this.url +
+                      "/uploads/students/" +
+                      JSON.parse(localStorage.getItem("selectedDesign")).name
+                    }
+                    style={{ width: "100%", height: "100%" }}
+                    alt={
+                      JSON.parse(localStorage.getItem("selectedDesign")).name
+                    }
+                  />
+                </div>
               </div>
-              <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
-                <img
-                  src={this.url + "/uploads/students/" + JSON.parse(localStorage.getItem("selectedDesign")).name}
-                  style={{ width: "100%" }}
-                  alt={JSON.parse(localStorage.getItem("selectedDesign")).name}
-                />
-              </div>
-            </div>
-          )}
+            )}
         </div>
       </div>
     );
