@@ -27,7 +27,8 @@ export default class Artwork extends Component {
     for (let i = 0; i < navs.length; i++) {
       navs[i].addEventListener("click", function () {
         let current = document.getElementsByClassName("active");
-        current[0].className = current[0].className.replace(" active", "");
+        current[0] &&
+          (current[0].className = current[0].className.replace(" active", ""));
       });
     }
     document.getElementById("navArt").classList.add("active");

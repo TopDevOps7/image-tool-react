@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.12.4",
     "axios": "^0.21.2",
     "bootstrap": "^4.5.2",
+    "fabric": "^5.2.1",
     "font-awesome": "^4.7.0",
     "jquery": "^3.5.1",
+    "material-ui": "^0.20.2",
     "moment": "^2.29.0",
     "popper.js": "^1.15.0",
     "react": "^18.0.0",
