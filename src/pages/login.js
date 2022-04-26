@@ -29,19 +29,22 @@ export default class Login extends Component {
     let bodyFormData = new FormData();
     bodyFormData.set("email", email);
     bodyFormData.set("password", password);
-    axios
-      .post(url, bodyFormData)
-      .then((result) => {
-        if (result.data.status) {
-          localStorage.setItem("token", result.data.token);
-          this.setState({ redirect: true, isLoading: false });
-          localStorage.setItem("isLoggedIn", true);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        this.setState({ authError: true, isLoading: false });
-      });
+    // axios
+    //   .post(url, bodyFormData)
+    //   .then((result) => {
+    //     if (result.data.status) {
+    //       localStorage.setItem("token", result.data.token);
+    //       this.setState({ redirect: true, isLoading: false });
+    //       localStorage.setItem("isLoggedIn", true);
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //     this.setState({ authError: true, isLoading: false });
+    //   });
+    localStorage.setItem("token", "result.data.token");
+    this.setState({ redirect: true, isLoading: false });
+    localStorage.setItem("isLoggedIn", true);
   };
 
   componentDidMount() {
@@ -125,14 +128,14 @@ export default class Login extends Component {
                   )}
                 </button>
               </div>
-              <div className="form-group">
+              {/* <div className="form-group">
                 <div className="form-group">
                   <b>email:</b> gowthaman.nkl1@gmail.com
                 </div>
                 <div className="form-group">
                   <b>password :</b> password
                 </div>
-              </div>
+              </div> */}
             </form>
             <div className="text-center">
               <Link className="d-block small mt-3" to={"register"}>

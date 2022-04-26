@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Header from "../elements/header";
 import Sidebar from "../elements/sidebar";
 import Footer from "../elements/footer";
+import toBase64 from "../helper/getBaseImage";
 import axios from "axios";
 import { Link, Redirect } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
@@ -15,13 +16,25 @@ export default class Artwork extends Component {
   }
 
   state = {
-    files: [],
+    designs: [],
     redirect: false,
     isLoading: false,
     showModal: false,
+    newBlank: "",
   };
 
   componentDidMount() {
+    this.setState({ isLoading: false });
+    if (
+      !(
+        localStorage.getItem("designs") === null ||
+        localStorage.getItem("designs") === "" ||
+        localStorage.getItem("designs") === []
+      )
+    ) {
+      this.state.designs = JSON.parse(localStorage.getItem("designs"));
+    }
+
     let header = document.getElementById("sidebarContent");
     let navs = header.getElementsByClassName("nav-item");
     for (let i = 0; i < navs.length; i++) {
@@ -32,24 +45,24 @@ export default class Artwork extends Component {
       });
     }
     document.getElementById("navArt").classList.add("active");
-
-    axios
-      .get(this.url + "fileupload", { params: { token: this.token } })
-      .then((response) => {
-        this.file = "";
-        const files = response.data.data.files;
-        this.setState({ files: files });
-      })
-      .catch((error) => {
-        this.setState({ toDashboard: true });
-        console.log(error);
-      });
   }
+  //   axios
+  //     .get(this.url + "fileupload", { params: { token: this.token } })
+  //     .then((response) => {
+  //       this.file = "";
+  //       const files = response.data.data.files;
+  //       this.setState({ files: files });
+  //     })
+  //     .catch((error) => {
+  //       this.setState({ toDashboard: true });
+  //       console.log(error);
+  //     });
 
-  handleChange = (event) => {
+  handleChange = async (event) => {
     event.preventDefault();
     if (event.target.files[0]) {
       this.file = event.target.files[0];
+      this.setState({ newBlank: await toBase64(this.file) });
       document.getElementById("fileLabel").innerHTML =
         event.target.files[0].name;
     }
@@ -58,25 +71,35 @@ export default class Artwork extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
     this.setState({ isLoading: true });
-    let bodyFormData = new FormData();
-    bodyFormData.append("file", this.file);
-    bodyFormData.set("token", this.token);
-    axios
-      .post(this.url + "fileupload", bodyFormData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((result) => {
-        if (result.data.status) {
-          this.componentDidMount();
-          this.setState({ redirect: true, isLoading: false, showModal: false });
-        }
-      })
-      .catch((error) => {
-        this.setState({ toDashboard: true });
-        console.log(error);
-      });
+    let new_designs = this.state.designs;
+    new_designs.push({
+      id: this.state.designs.length,
+      design: this.state.newBlank,
+    });
+    this.setState({ designs: new_designs });
+    localStorage.setItem("designs", JSON.stringify(new_designs));
+    this.setState({ isLoading: false });
+    this.componentDidMount();
+    this.setState({ redirect: true, isLoading: false, showModal: false });
+    // let bodyFormData = new FormData();
+    // bodyFormData.append("file", this.file);
+    // bodyFormData.set("token", this.token);
+    // axios
+    //   .post(this.url + "fileupload", bodyFormData, {
+    //     headers: {
+    //       "Content-Type": "multipart/form-data",
+    //     },
+    //   })
+    //   .then((result) => {
+    //     if (result.data.status) {
+    //       this.componentDidMount();
+    //       this.setState({ redirect: true, isLoading: false, showModal: false });
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     this.setState({ toDashboard: true });
+    //     console.log(error);
+    //   });
   };
 
   renderRedirect = () => {
@@ -90,15 +113,30 @@ export default class Artwork extends Component {
     document.getElementById("delete" + id).classList.remove("d-none");
     const preview = document.querySelectorAll(".delete" + id);
     preview[0].setAttribute("disabled", true);
-    axios
-      .delete(this.url + "filedelete/" + id, { params: { token: this.token } })
-      .then((response) => {
-        this.componentDidMount();
-      })
-      .catch((error) => {
-        console.log(error.toString());
-        this.componentDidMount();
-      });
+
+    let filtered_designs = this.state.designs.filter(function (
+      design,
+      index,
+      arr
+    ) {
+      return design.id != id;
+    });
+    filtered_designs.map((design, index) => {
+      filtered_designs[index].id = index;
+    });
+    this.setState({ designs: filtered_designs });
+    localStorage.setItem("designs", JSON.stringify(filtered_designs));
+    this.setState({ isLoading: false });
+    this.componentDidMount();
+    // axios
+    //   .delete(this.url + "filedelete/" + id, { params: { token: this.token } })
+    //   .then((response) => {
+    //     this.componentDidMount();
+    //   })
+    //   .catch((error) => {
+    //     console.log(error.toString());
+    //     this.componentDidMount();
+    //   });
   };
 
   render() {
@@ -116,7 +154,7 @@ export default class Artwork extends Component {
             <div className="container-fluid">
               <ol
                 className="breadcrumb"
-                style={{ "justify-content": "space-between" }}
+                style={{ justifyContent: "space-between" }}
               >
                 <div className="d-flex mt-1">
                   <li className="breadcrumb-item">
@@ -206,26 +244,26 @@ export default class Artwork extends Component {
               </Modal>
 
               <div className="row">
-                {this.state.files.map((files, index) => (
+                {this.state.designs.map((design, index) => (
                   <div
                     className="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3"
-                    key={files.id}
+                    key={design.id}
                   >
                     <img
-                      src={this.url + "/uploads/students/" + files.name}
+                      src={design.design}
                       style={{ width: "100%", height: "100%" }}
-                      alt={files.name}
+                      alt={design.id}
                     />
                     <button
-                      value={files.id}
-                      className={"btn btn-sm btn-danger delete" + files.id}
+                      value={design.id}
+                      className={"btn btn-sm btn-danger delete" + design.id}
                       style={{ position: "absolute", margin: "5px -70px" }}
                       onClick={this.handleClickDelete}
                     >
                       Delete &nbsp;
                       <span
                         className="spinner-border spinner-border-sm d-none"
-                        id={"delete" + files.id}
+                        id={"delete" + design.id}
                         role="status"
                         aria-hidden="true"
                       ></span>

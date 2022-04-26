@@ -37,16 +37,51 @@ class MockupGenerator extends Component {
 
   state = {
     activeStep: 0,
+    designs: [],
+    blankList: [],
     files: [],
-    startBlankFlag: false,
-    startDesignFlag: false,
-    startMockupFlag: false,
+    startBlankFlag: -1,
+    startDesignFlag: -1,
+    startMockupFlag: -1,
+    results: "",
   };
 
   componentDidMount() {
-    localStorage.removeItem("selectedBlank");
-    localStorage.removeItem("selectedDesign");
+    this.setState({ isLoading: false });
+    if (
+      !(
+        localStorage.getItem("designs") === null ||
+        localStorage.getItem("designs") === "" ||
+        localStorage.getItem("designs") === []
+      )
+    ) {
+      this.state.designs = JSON.parse(localStorage.getItem("designs"));
+    }
 
+    if (
+      !(
+        localStorage.getItem("files") === null ||
+        localStorage.getItem("files") === "" ||
+        localStorage.getItem("files") === []
+      )
+    ) {
+      this.state.files = JSON.parse(localStorage.getItem("files"));
+    }
+
+    if (
+      !(
+        localStorage.getItem("blankList") === null ||
+        localStorage.getItem("blankList") === "" ||
+        localStorage.getItem("blankList") === []
+      )
+    ) {
+      this.state.blankList = JSON.parse(localStorage.getItem("blankList"));
+    }
+    this.setState({
+      startBlankFlag: -1,
+      startDesignFlag: -1,
+      startMockupFlag: -1,
+    });
     let header = document.getElementById("sidebarContent");
     let navs = header.getElementsByClassName("nav-item");
     for (let i = 0; i < navs.length; i++) {
@@ -58,16 +93,16 @@ class MockupGenerator extends Component {
     }
     document.getElementById("navMockup").classList.add("active");
 
-    axios
-      .get(this.url + "fileupload", { params: { token: this.token } })
-      .then((response) => {
-        const files = response.data.data.files;
-        this.setState({ files: files });
-      })
-      .catch((error) => {
-        this.setState({ toDashboard: true });
-        console.log(error);
-      });
+    // axios
+    //   .get(this.url + "fileupload", { params: { token: this.token } })
+    //   .then((response) => {
+    //     const files = response.data.data.files;
+    //     this.setState({ files: files });
+    //   })
+    //   .catch((error) => {
+    //     this.setState({ toDashboard: true });
+    //     console.log(error);
+    //   });
   }
 
   handleNext = () => {
@@ -76,11 +111,11 @@ class MockupGenerator extends Component {
 
     switch (activeStep) {
       case 0:
-        localStorage.getItem("selectedBlank") && (nextFlag = true);
+        this.state.startBlankFlag >= 0 && (nextFlag = true);
         break;
 
       case 1:
-        localStorage.getItem("selectedDesign") && (nextFlag = true);
+        this.state.startDesignFlag >= 0 && (nextFlag = true);
         break;
 
       case 2:
@@ -105,56 +140,35 @@ class MockupGenerator extends Component {
   };
 
   handleReset = () => {
-    localStorage.removeItem("selectedBlank");
-    localStorage.removeItem("selectedDesign");
-
     this.setState({
       activeStep: 0,
-      startBlankFlag: false,
-      startDesignFlag: false,
+      startBlankFlag: -1,
+      startDesignFlag: -1,
+      startMockupFlag: -1,
     });
   };
 
   isValidated(img, type) {
     if (type === 0) {
       if (img) {
-        if (this.state.startBlankFlag) {
-          let blankId = JSON.parse(localStorage.getItem("selectedBlank")).id;
-          document.getElementById(`blank_${img.id}`).style.display = "inline";
-          document.getElementById(`blank_${blankId}`).style.display = "none";
-        } else {
-          document.getElementById(`blank_${img.id}`).style.display = "inline";
-        }
+        // if (this.state.startBlankFlag>=0) {
+        document.getElementById(`blank_${this.state.startBlankFlag}`) &&
+          (document.getElementById(
+            `blank_${this.state.startBlankFlag}`
+          ).style.display = "none");
+        document.getElementById(`blank_${img.id}`).style.display = "inline";
 
-        localStorage.setItem("selectedBlank", JSON.stringify(img));
-      }
-
-      if (localStorage.getItem("selectedBlank")) {
-        this.setState({ startBlankFlag: true });
-        return true;
-      } else {
-        this.setState({ startBlankFlag: false });
-        return false;
+        this.setState({ startBlankFlag: img.id });
       }
     } else {
       if (img) {
-        if (this.state.startDesignFlag) {
-          let designId = JSON.parse(localStorage.getItem("selectedDesign")).id;
-          document.getElementById(`design_${img.id}`).style.display = "inline";
-          document.getElementById(`design_${designId}`).style.display = "none";
-        } else {
-          document.getElementById(`design_${img.id}`).style.display = "inline";
-        }
+        document.getElementById(`design_${this.state.startDesignFlag}`) &&
+          (document.getElementById(
+            `design_${this.state.startDesignFlag}`
+          ).style.display = "none");
+        document.getElementById(`design_${img.id}`).style.display = "inline";
 
-        localStorage.setItem("selectedDesign", JSON.stringify(img));
-      }
-
-      if (localStorage.getItem("selectedDesign")) {
-        this.setState({ startDesignFlag: true });
-        return true;
-      } else {
-        this.setState({ startDesignFlag: false });
-        return false;
+        this.setState({ startDesignFlag: img.id });
       }
     }
   }
@@ -166,38 +180,36 @@ class MockupGenerator extends Component {
           <div>
             <h3>Select Blank</h3>
             <div className="row">
-              {this.state.files.map((files) => (
+              {this.state.files.map((file) => (
                 <div
                   className="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3"
-                  key={files.id}
+                  key={file.id}
                 >
                   <img
-                    src={this.url + "/uploads/students/" + files.name}
+                    src={file.file}
                     style={{ width: "100%", height: "100%", cursor: "pointer" }}
-                    alt={files.name}
-                    onClick={() => this.isValidated(files, 0)}
+                    alt={file.id}
+                    onClick={() => this.isValidated(file, 0)}
                   />
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="30"
                     height="30"
                     fill="green"
-                    class="bi bi-bookmark-check"
+                    className="bi bi-bookmark-check"
                     viewBox="0 0 16 16"
                     style={{
                       position: "absolute",
                       margin: "3px -30px",
                       display:
-                        localStorage.getItem("selectedBlank") &&
-                        JSON.parse(localStorage.getItem("selectedBlank")).id ===
-                          files.id
+                        this.state.startBlankFlag === file.id
                           ? "inline"
                           : "none",
                     }}
-                    id={"blank_" + files.id}
+                    id={"blank_" + file.id}
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z"
                     />
                     <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z" />
@@ -213,38 +225,36 @@ class MockupGenerator extends Component {
           <div>
             <h3>Select Design</h3>
             <div className="row">
-              {this.state.files.map((files) => (
+              {this.state.designs.map((design) => (
                 <div
                   className="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3"
-                  key={files.id}
+                  key={design.id}
                 >
                   <img
-                    src={this.url + "/uploads/students/" + files.name}
+                    src={design.design}
                     style={{ width: "100%", height: "100%", cursor: "pointer" }}
-                    alt={files.name}
-                    onClick={() => this.isValidated(files, 1)}
+                    alt={design.id}
+                    onClick={() => this.isValidated(design, 1)}
                   />
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="30"
                     height="30"
                     fill="green"
-                    class="bi bi-bookmark-check"
+                    className="bi bi-bookmark-check"
                     viewBox="0 0 16 16"
                     style={{
                       position: "absolute",
                       margin: "3px -30px",
                       display:
-                        localStorage.getItem("selectedDesign") &&
-                        JSON.parse(localStorage.getItem("selectedDesign"))
-                          .id === files.id
+                        this.state.startDesignFlag === design.id
                           ? "inline"
                           : "none",
                     }}
-                    id={"design_" + files.id}
+                    id={"design_" + design.id}
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z"
                     />
                     <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z" />
@@ -262,35 +272,42 @@ class MockupGenerator extends Component {
             width: canvas.width,
             height: canvas.width,
           });
-          let blank_url =
-            this.url +
-            "/uploads/students/" +
-            JSON.parse(localStorage.getItem("selectedBlank")).name;
-          let design_url =
-            this.url +
-            "/uploads/students/" +
-            JSON.parse(localStorage.getItem("selectedDesign")).name;
-          fabric.Image.fromURL(blank_url, function (img) {
-            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-              scaleX: canvas.width / img.width,
-              scaleY: canvas.width / img.width,
-            });
-          });
+          let selectedBlankFile =
+            this.state.files[this.state.startBlankFlag].file;
+          let selectedBlank =
+            this.state.blankList[this.state.startBlankFlag].blank;
+          let selectedDesign =
+            this.state.designs[this.state.startDesignFlag].design;
 
-          fabric.Image.fromURL(design_url, function (myImg) {
-            const bg = myImg.set({
-              scaleX: canvas.width / myImg.width / 2,
-              scaleY: canvas.width / myImg.height / 2,
-              left: canvas.width / 2 - 75,
-              top: 80,
-              width: myImg.width,
-              angle: 0,
-              height: myImg.height,
-              layer: 0,
+          fabric.Image.fromURL(selectedBlankFile, function (img) {
+            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+              scaleX: (canvas.width * 0.9) / img.width,
+              scaleY: (canvas.width * 0.9) / img.width,
             });
-            canvas.add(bg);
           });
-        }, 100);
+          fabric.Image.fromURL(selectedDesign, function (myImg) {
+            canvas.setOverlayImage(myImg, canvas.renderAll.bind(canvas), {
+              left: selectedBlank.details.left,
+              top: selectedBlank.details.top,
+              scaleX: (selectedBlank.details.zoomX * 80) / myImg.width,
+              scaleY: (selectedBlank.details.zoomY * 80) / myImg.width,
+              originX: "center",
+              originY: "center",
+            });
+          });
+          let results = [];
+          if (
+            !(
+              localStorage.getItem("results") === null ||
+              localStorage.getItem("results") === "" ||
+              localStorage.getItem("results") === []
+            )
+          )
+            results = JSON.parse(localStorage.getItem("results"));
+
+          results.push(canvas.toDataURL("image/png", 1.0));
+          localStorage.setItem("results", JSON.stringify(results));
+        }, 50);
 
         return (
           <div>
@@ -307,37 +324,24 @@ class MockupGenerator extends Component {
                 />
               </div>
               <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
-                {localStorage.getItem("selectedBlank") &&
-                  localStorage.getItem("selectedDesign") && (
+                {this.state.startBlankFlag >= 0 &&
+                  this.state.startDesignFlag >= 0 && (
                     <div className="row">
                       <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
                         <img
-                          src={
-                            this.url +
-                            "/uploads/students/" +
-                            JSON.parse(localStorage.getItem("selectedBlank"))
-                              .name
-                          }
+                          src={this.state.files[this.state.startBlankFlag].file}
                           style={{ width: "100%", height: "100%" }}
-                          alt={
-                            JSON.parse(localStorage.getItem("selectedBlank"))
-                              .name
-                          }
+                          alt="blank"
                         />
                       </div>
                       <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
                         <img
                           src={
-                            this.url +
-                            "/uploads/students/" +
-                            JSON.parse(localStorage.getItem("selectedDesign"))
-                              .name
+                            this.state.designs[this.state.startDesignFlag]
+                              .design
                           }
                           style={{ width: "100%", height: "100%" }}
-                          alt={
-                            JSON.parse(localStorage.getItem("selectedDesign"))
-                              .name
-                          }
+                          alt="design"
                         />
                       </div>
                     </div>
@@ -346,7 +350,7 @@ class MockupGenerator extends Component {
             </div>
           </div>
         );
-
+        break;
       default:
         return "Unknown step";
     }
