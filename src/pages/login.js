@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import axios from "axios";
 import { Link, Redirect } from "react-router-dom";
 import TitleComponent from "./title";
+import { BACKEND_URL } from "../helper/constants";
 
 export default class Login extends Component {
   state = {
@@ -23,28 +24,23 @@ export default class Login extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
     this.setState({ isLoading: true });
-    const url = "https://gowtham-rest-api-crud.herokuapp.com/login";
-    const email = this.state.email;
-    const password = this.state.password;
-    let bodyFormData = new FormData();
-    bodyFormData.set("email", email);
-    bodyFormData.set("password", password);
-    // axios
-    //   .post(url, bodyFormData)
-    //   .then((result) => {
-    //     if (result.data.status) {
-    //       localStorage.setItem("token", result.data.token);
-    //       this.setState({ redirect: true, isLoading: false });
-    //       localStorage.setItem("isLoggedIn", true);
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //     this.setState({ authError: true, isLoading: false });
-    //   });
-    localStorage.setItem("token", "result.data.token");
-    this.setState({ redirect: true, isLoading: false });
-    localStorage.setItem("isLoggedIn", true);
+    const data = {
+      email: this.state.email,
+      password: this.state.password,
+    };
+    axios
+      .post(`${BACKEND_URL}auth/signin`, data)
+      .then((result) => {
+        if (result.data.success) {
+          localStorage.setItem("token", result.data.data.accessToken);
+          this.setState({ redirect: true, isLoading: false });
+          localStorage.setItem("isLoggedIn", true);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        this.setState({ authError: true, isLoading: false });
+      });
   };
 
   componentDidMount() {
@@ -72,10 +68,7 @@ export default class Login extends Component {
               <div className="form-group">
                 <div className="form-label-group">
                   <input
-                    className={
-                      "form-control " +
-                      (this.state.authError ? "is-invalid" : "")
-                    }
+                    className={"form-control " + (this.state.authError ? "is-invalid" : "")}
                     id="inputEmail"
                     placeholder="Email address"
                     type="text"
@@ -85,19 +78,14 @@ export default class Login extends Component {
                     required
                   />
                   <label htmlFor="inputEmail">Email address</label>
-                  <div className="invalid-feedback">
-                    Please provide a valid Email.
-                  </div>
+                  <div className="invalid-feedback">Please provide a valid Email.</div>
                 </div>
               </div>
               <div className="form-group">
                 <div className="form-label-group">
                   <input
                     type="password"
-                    className={
-                      "form-control " +
-                      (this.state.authError ? "is-invalid" : "")
-                    }
+                    className={"form-control " + (this.state.authError ? "is-invalid" : "")}
                     id="inputPassword"
                     placeholder="******"
                     name="password"
@@ -105,24 +93,14 @@ export default class Login extends Component {
                     required
                   />
                   <label htmlFor="inputPassword">Password</label>
-                  <div className="invalid-feedback">
-                    Please provide a valid Password.
-                  </div>
+                  <div className="invalid-feedback">Please provide a valid Password.</div>
                 </div>
               </div>
               <div className="form-group">
-                <button
-                  className="btn btn-primary btn-block"
-                  type="submit"
-                  disabled={this.state.isLoading ? true : false}
-                >
+                <button className="btn btn-primary btn-block" type="submit" disabled={this.state.isLoading ? true : false}>
                   Login &nbsp;&nbsp;&nbsp;
                   {isLoading ? (
-                    <span
-                      className="spinner-border spinner-border-sm"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
+                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                   ) : (
                     <span></span>
                   )}
@@ -130,10 +108,10 @@ export default class Login extends Component {
               </div>
               {/* <div className="form-group">
                 <div className="form-group">
-                  <b>email:</b> gowthaman.nkl1@gmail.com
+                  <b>email:</b> imagetooladmin@gmail.com
                 </div>
                 <div className="form-group">
-                  <b>password :</b> password
+                  <b>password :</b> adminpassword
                 </div>
               </div> */}
             </form>

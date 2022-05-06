@@ -24,14 +24,11 @@ class NotFound extends Component {
               <h1 className="display-1">404</h1>
               <p className="lead">
                 Page not found. You can
-                <a
-                  href={this.props.history.goBack}
-                  onClick={this.props.history.goBack}
-                >
+                <a href={this.props.history.goBack} onClick={this.props.history.goBack}>
                   go back
                 </a>
                 to the previous page, or
-                <Link to={"/dashboard"}>return home</Link>.
+                <Link to={"/home"}>return home</Link>.
               </p>
             </div>
 
@@ -39,8 +36,7 @@ class NotFound extends Component {
               <div className="container my-auto">
                 <div className="copyright text-center my-auto">
                   <span>
-                    Copyright © Your Website{" "}
-                    <div>{new Date().getFullYear()}</div>
+                    Copyright © Your Website <div>{new Date().getFullYear()}</div>
                   </span>
                 </div>
               </div>

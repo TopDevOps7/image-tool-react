@@ -20,7 +20,9 @@ export default class Artwork extends Component {
     redirect: false,
     isLoading: false,
     showModal: false,
-    newBlank: "",
+    disableButton: true,
+    newDesign: "",
+    designName: "",
   };
 
   componentDidMount() {
@@ -32,7 +34,7 @@ export default class Artwork extends Component {
         localStorage.getItem("designs") === []
       )
     ) {
-      this.state.designs = JSON.parse(localStorage.getItem("designs"));
+      this.setState({ designs: JSON.parse(localStorage.getItem("designs")) });
     }
 
     let header = document.getElementById("sidebarContent");
@@ -40,31 +42,30 @@ export default class Artwork extends Component {
     for (let i = 0; i < navs.length; i++) {
       navs[i].addEventListener("click", function () {
         let current = document.getElementsByClassName("active");
-        current[0] &&
-          (current[0].className = current[0].className.replace(" active", ""));
+        current[0] && (current[0].className = current[0].className.replace(" active", ""));
       });
     }
     document.getElementById("navArt").classList.add("active");
+
+    //   axios
+    //     .get(this.url + "fileupload", { params: { token: this.token } })
+    //     .then((response) => {
+    //       this.file = "";
+    //       const files = response.data.data.files;
+    //       this.setState({ files: files });
+    //     })
+    //     .catch((error) => {
+    //       this.setState({ toDashboard: true });
+    //       console.log(error);
+    //     });
   }
-  //   axios
-  //     .get(this.url + "fileupload", { params: { token: this.token } })
-  //     .then((response) => {
-  //       this.file = "";
-  //       const files = response.data.data.files;
-  //       this.setState({ files: files });
-  //     })
-  //     .catch((error) => {
-  //       this.setState({ toDashboard: true });
-  //       console.log(error);
-  //     });
 
   handleChange = async (event) => {
     event.preventDefault();
     if (event.target.files[0]) {
       this.file = event.target.files[0];
-      this.setState({ newBlank: await toBase64(this.file) });
-      document.getElementById("fileLabel").innerHTML =
-        event.target.files[0].name;
+      this.setState({ newDesign: await toBase64(this.file) });
+      document.getElementById("fileLabel").innerHTML = event.target.files[0].name;
     }
   };
 
@@ -74,7 +75,8 @@ export default class Artwork extends Component {
     let new_designs = this.state.designs;
     new_designs.push({
       id: this.state.designs.length,
-      design: this.state.newBlank,
+      design: this.state.newDesign,
+      name: this.state.designName,
     });
     this.setState({ designs: new_designs });
     localStorage.setItem("designs", JSON.stringify(new_designs));
@@ -114,11 +116,7 @@ export default class Artwork extends Component {
     const preview = document.querySelectorAll(".delete" + id);
     preview[0].setAttribute("disabled", true);
 
-    let filtered_designs = this.state.designs.filter(function (
-      design,
-      index,
-      arr
-    ) {
+    let filtered_designs = this.state.designs.filter(function (design, index, arr) {
       return design.id != id;
     });
     filtered_designs.map((design, index) => {
@@ -139,6 +137,11 @@ export default class Artwork extends Component {
     //   });
   };
 
+  handleDesignNameChange = (event) => {
+    this.setState({ designName: event.target.value });
+    event.target.value === "" ? this.setState({ disableButton: true }) : this.setState({ disableButton: false });
+  };
+
   render() {
     const isLoading = this.state.isLoading;
     if (this.state.toDashboard === true) {
@@ -152,10 +155,7 @@ export default class Artwork extends Component {
           <Sidebar></Sidebar>
           <div id="content-wrapper">
             <div className="container-fluid">
-              <ol
-                className="breadcrumb"
-                style={{ justifyContent: "space-between" }}
-              >
+              <ol className="breadcrumb" style={{ justifyContent: "space-between" }}>
                 <div className="d-flex mt-1">
                   <li className="breadcrumb-item">
                     <Link to={"/home"}>Home</Link>
@@ -164,7 +164,7 @@ export default class Artwork extends Component {
                 </div>
                 <button
                   className="btn btn-sm btn-primary"
-                  onClick={() => this.setState({ showModal: true })}
+                  onClick={() => this.setState({ showModal: true, disableButton: true })}
                 >
                   Add New Design
                 </button>
@@ -181,9 +181,7 @@ export default class Artwork extends Component {
                 centered
               >
                 <Modal.Header>
-                  <Modal.Title id="contained-modal-title-vcenter">
-                    Add New Design
-                  </Modal.Title>
+                  <Modal.Title id="contained-modal-title-vcenter">Add New Design</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                   <form onSubmit={this.handleSubmit}>
@@ -192,36 +190,32 @@ export default class Artwork extends Component {
                         <div className="col-md-12 mt-2">
                           <div className="input-group input-group-lg">
                             <div className="custom-file">
-                              <input
-                                type="file"
-                                onChange={this.handleChange}
-                                className="custom-file-input"
-                                id="fileInput"
-                              />
-                              <label
-                                className="custom-file-label"
-                                id="fileLabel"
-                                htmlFor="fileInput"
-                              >
+                              <input type="file" onChange={this.handleChange} className="custom-file-input" id="fileInput" />
+                              <label className="custom-file-label" id="fileLabel" htmlFor="fileInput">
                                 Choose file
                               </label>
                             </div>
                           </div>
+                        </div>
+                        <div className="col-md-12 mt-2">
+                          <input
+                            className={"form-control " + (this.state.authError ? "is-invalid" : "")}
+                            id="inputDesignName"
+                            placeholder="Design Name"
+                            type="text"
+                            onChange={this.handleDesignNameChange}
+                          />
                         </div>
                         <div className="col-md-12 mt-4">
                           <div className="form-label-group">
                             <button
                               className="btn btn-primary btn-block"
                               type="submit"
-                              disabled={this.state.isLoading ? true : false}
+                              disabled={this.state.isLoading || this.state.disableButton ? true : false}
                             >
                               Upload &nbsp;&nbsp;&nbsp;
                               {isLoading ? (
-                                <span
-                                  className="spinner-border spinner-border-sm"
-                                  role="status"
-                                  aria-hidden="true"
-                                ></span>
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                               ) : (
                                 <span></span>
                               )}
@@ -234,26 +228,16 @@ export default class Artwork extends Component {
                   {this.renderRedirect()}
                 </Modal.Body>
                 <Modal.Footer>
-                  <button
-                    className="btn btn-sm btn-dark"
-                    onClick={() => this.setState({ showModal: false })}
-                  >
+                  <button className="btn btn-sm btn-dark" onClick={() => this.setState({ showModal: false })}>
                     Close
                   </button>
                 </Modal.Footer>
               </Modal>
 
               <div className="row">
-                {this.state.designs.map((design, index) => (
-                  <div
-                    className="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3"
-                    key={design.id}
-                  >
-                    <img
-                      src={design.design}
-                      style={{ width: "100%", height: "100%" }}
-                      alt={design.id}
-                    />
+                {this.state.designs.map((design) => (
+                  <div className="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3" style={{ height: "fit-content" }} key={design.id}>
+                    <img src={design.design} style={{ width: "100%", height: "100%" }} alt={design.id} />
                     <button
                       value={design.id}
                       className={"btn btn-sm btn-danger delete" + design.id}
@@ -268,6 +252,7 @@ export default class Artwork extends Component {
                         aria-hidden="true"
                       ></span>
                     </button>
+                    <div className="text-md-center">{design.name}</div>
                   </div>
                 ))}
               </div>

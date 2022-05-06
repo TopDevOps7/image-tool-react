@@ -1,10 +1,13 @@
 import React, { Component } from "react";
 import axios from "axios";
 import { Link, Redirect } from "react-router-dom";
+import { BACKEND_URL } from "../helper/constants";
 
 export default class Register extends Component {
   state = {
-    name: "",
+    firstname: "",
+    lastname: "",
+    username: "",
     email: "",
     password: "",
     redirect: false,
@@ -23,23 +26,28 @@ export default class Register extends Component {
   handlePwdChange = (event) => {
     this.setState({ password: event.target.value });
   };
-  handleNameChange = (event) => {
-    this.setState({ name: event.target.value });
+  handleFirstNameChange = (event) => {
+    this.setState({ firstname: event.target.value });
+  };
+  handleLastNameChange = (event) => {
+    this.setState({ lastname: event.target.value });
+  };
+  handleUserNameChange = (event) => {
+    this.setState({ username: event.target.value });
   };
 
   handleSubmit = (event) => {
     event.preventDefault();
     this.setState({ isLoading: true });
-    const url = "https://gowtham-rest-api-crud.herokuapp.com/register";
-    const email = this.state.email;
-    const password = this.state.password;
-    const name = this.state.name;
-    let bodyFormData = new FormData();
-    bodyFormData.set("email", email);
-    bodyFormData.set("name", name);
-    bodyFormData.set("password", password);
+    const data = {
+      firstname: this.state.firstname,
+      lastname: this.state.lastname,
+      username: this.state.username,
+      email: this.state.email,
+      password: this.state.password,
+    };
     axios
-      .post(url, bodyFormData)
+      .post(`${BACKEND_URL}auth/signup`, data)
       .then((result) => {
         this.setState({ isLoading: false });
         if (result.data.status !== "fail") {
@@ -72,14 +80,42 @@ export default class Register extends Component {
                 <div className="form-label-group">
                   <input
                     type="text"
-                    id="inputName"
+                    id="inputFirstName"
                     className="form-control"
-                    placeholder="name"
-                    name="name"
-                    onChange={this.handleNameChange}
+                    placeholder="first name"
+                    name="firstName"
+                    onChange={this.handleFirstNameChange}
                     required
                   />
-                  <label htmlFor="inputName">Name</label>
+                  <label htmlFor="inputFirstName">First Name</label>
+                </div>
+              </div>
+              <div className="form-group">
+                <div className="form-label-group">
+                  <input
+                    type="text"
+                    id="inputLastName"
+                    className="form-control"
+                    placeholder="last name"
+                    name="lastname"
+                    onChange={this.handleLastNameChange}
+                    required
+                  />
+                  <label htmlFor="inputLastName">Last Name</label>
+                </div>
+              </div>
+              <div className="form-group">
+                <div className="form-label-group">
+                  <input
+                    type="text"
+                    id="inputUserName"
+                    className="form-control"
+                    placeholder="user name"
+                    name="username"
+                    onChange={this.handleUserNameChange}
+                    required
+                  />
+                  <label htmlFor="inputUserName">User Name</label>
                 </div>
               </div>
 
@@ -87,10 +123,7 @@ export default class Register extends Component {
                 <div className="form-label-group">
                   <input
                     id="inputEmail"
-                    className={
-                      "form-control " +
-                      (this.state.authError ? "is-invalid" : "")
-                    }
+                    className={"form-control " + (this.state.authError ? "is-invalid" : "")}
                     placeholder="Email address"
                     type="text"
                     name="email"
@@ -99,9 +132,7 @@ export default class Register extends Component {
                     required
                   />
                   <label htmlFor="inputEmail">Email address</label>
-                  <div className="invalid-feedback">
-                    Please provide a valid Email. or Email Exis
-                  </div>
+                  <div className="invalid-feedback">Please provide a valid Email. or Email Exis</div>
                 </div>
               </div>
               <div className="form-group">
@@ -120,18 +151,10 @@ export default class Register extends Component {
               </div>
 
               <div className="form-group">
-                <button
-                  className="btn btn-primary btn-block"
-                  type="submit"
-                  disabled={this.state.isLoading ? true : false}
-                >
+                <button className="btn btn-primary btn-block" type="submit" disabled={this.state.isLoading ? true : false}>
                   Register &nbsp;&nbsp;&nbsp;
                   {isLoading ? (
-                    <span
-                      className="spinner-border spinner-border-sm"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
+                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                   ) : (
                     <span></span>
                   )}
@@ -142,9 +165,9 @@ export default class Register extends Component {
               <Link className="d-block small mt-3" to={""}>
                 Login Your Account
               </Link>
-              <Link className="d-block small" to={"#"}>
+              {/* <Link className="d-block small" to={"#"}>
                 Forgot Password?
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>

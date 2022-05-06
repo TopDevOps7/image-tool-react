@@ -59,7 +59,11 @@ class MockupGenerator extends Component {
     }
 
     if (
-      !(localStorage.getItem("files") === null || localStorage.getItem("files") === "" || localStorage.getItem("files") === [])
+      !(
+        localStorage.getItem("files") === null ||
+        localStorage.getItem("files") === "" ||
+        localStorage.getItem("files") === []
+      )
     ) {
       this.state.files = JSON.parse(localStorage.getItem("files"));
     }
@@ -83,7 +87,8 @@ class MockupGenerator extends Component {
     for (let i = 0; i < navs.length; i++) {
       navs[i].addEventListener("click", function () {
         let current = document.getElementsByClassName("active");
-        current[0] && (current[0].className = current[0].className.replace(" active", ""));
+        current[0] &&
+          (current[0].className = current[0].className.replace(" active", ""));
       });
     }
     document.getElementById("navMockup").classList.add("active");
@@ -146,8 +151,11 @@ class MockupGenerator extends Component {
   isValidated(img, type) {
     if (type === 0) {
       if (img) {
+        // if (this.state.startBlankFlag>=0) {
         document.getElementById(`blank_${this.state.startBlankFlag}`) &&
-          (document.getElementById(`blank_${this.state.startBlankFlag}`).style.display = "none");
+          (document.getElementById(
+            `blank_${this.state.startBlankFlag}`
+          ).style.display = "none");
         document.getElementById(`blank_${img.id}`).style.display = "inline";
 
         this.setState({ startBlankFlag: img.id });
@@ -155,7 +163,9 @@ class MockupGenerator extends Component {
     } else {
       if (img) {
         document.getElementById(`design_${this.state.startDesignFlag}`) &&
-          (document.getElementById(`design_${this.state.startDesignFlag}`).style.display = "none");
+          (document.getElementById(
+            `design_${this.state.startDesignFlag}`
+          ).style.display = "none");
         document.getElementById(`design_${img.id}`).style.display = "inline";
 
         this.setState({ startDesignFlag: img.id });
@@ -171,7 +181,10 @@ class MockupGenerator extends Component {
             <h3>Select Blank</h3>
             <div className="row">
               {this.state.files.map((file) => (
-                <div className="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3" style={{ height: "fit-content" }} key={file.id}>
+                <div
+                  className="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3"
+                  key={file.id}
+                >
                   <img
                     src={file.file}
                     style={{ width: "100%", height: "100%", cursor: "pointer" }}
@@ -188,7 +201,10 @@ class MockupGenerator extends Component {
                     style={{
                       position: "absolute",
                       margin: "3px -30px",
-                      display: this.state.startBlankFlag === file.id ? "inline" : "none",
+                      display:
+                        this.state.startBlankFlag === file.id
+                          ? "inline"
+                          : "none",
                     }}
                     id={"blank_" + file.id}
                   >
@@ -198,7 +214,6 @@ class MockupGenerator extends Component {
                     />
                     <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z" />
                   </svg>
-                  <div className="text-md-center">{file.name}</div>
                 </div>
               ))}
             </div>
@@ -211,7 +226,10 @@ class MockupGenerator extends Component {
             <h3>Select Design</h3>
             <div className="row">
               {this.state.designs.map((design) => (
-                <div className="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3" style={{ height: "fit-content" }} key={design.id}>
+                <div
+                  className="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3"
+                  key={design.id}
+                >
                   <img
                     src={design.design}
                     style={{ width: "100%", height: "100%", cursor: "pointer" }}
@@ -228,7 +246,10 @@ class MockupGenerator extends Component {
                     style={{
                       position: "absolute",
                       margin: "3px -30px",
-                      display: this.state.startDesignFlag === design.id ? "inline" : "none",
+                      display:
+                        this.state.startDesignFlag === design.id
+                          ? "inline"
+                          : "none",
                     }}
                     id={"design_" + design.id}
                   >
@@ -238,7 +259,6 @@ class MockupGenerator extends Component {
                     />
                     <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z" />
                   </svg>
-                  <div className="text-md-center">{design.name}</div>
                 </div>
               ))}
             </div>
@@ -252,9 +272,12 @@ class MockupGenerator extends Component {
             width: canvas.width,
             height: canvas.width,
           });
-          let selectedBlankFile = this.state.files[this.state.startBlankFlag].file;
-          let selectedBlank = this.state.blankList[this.state.startBlankFlag].blank;
-          let selectedDesign = this.state.designs[this.state.startDesignFlag].design;
+          let selectedBlankFile =
+            this.state.files[this.state.startBlankFlag].file;
+          let selectedBlank =
+            this.state.blankList[this.state.startBlankFlag].blank;
+          let selectedDesign =
+            this.state.designs[this.state.startDesignFlag].design;
 
           fabric.Image.fromURL(selectedBlankFile, function (img) {
             canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
@@ -301,29 +324,33 @@ class MockupGenerator extends Component {
                 />
               </div>
               <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
-                {this.state.startBlankFlag >= 0 && this.state.startDesignFlag >= 0 && (
-                  <div className="row">
-                    <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
-                      <img
-                        src={this.state.files[this.state.startBlankFlag].file}
-                        style={{ width: "100%", height: "100%" }}
-                        alt="blank"
-                      />
+                {this.state.startBlankFlag >= 0 &&
+                  this.state.startDesignFlag >= 0 && (
+                    <div className="row">
+                      <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+                        <img
+                          src={this.state.files[this.state.startBlankFlag].file}
+                          style={{ width: "100%", height: "100%" }}
+                          alt="blank"
+                        />
+                      </div>
+                      <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+                        <img
+                          src={
+                            this.state.designs[this.state.startDesignFlag]
+                              .design
+                          }
+                          style={{ width: "100%", height: "100%" }}
+                          alt="design"
+                        />
+                      </div>
                     </div>
-                    <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
-                      <img
-                        src={this.state.designs[this.state.startDesignFlag].design}
-                        style={{ width: "100%", height: "100%" }}
-                        alt="design"
-                      />
-                    </div>
-                  </div>
-                )}
+                  )}
               </div>
             </div>
           </div>
         );
-
+        break;
       default:
         return "Unknown step";
     }
@@ -354,19 +381,35 @@ class MockupGenerator extends Component {
               <div>
                 {activeStep === steps.length ? (
                   <div>
-                    <Typography className={classes.instructions}>All steps completed - you&quot;re finished</Typography>
-                    <Button onClick={this.handleReset} className={classes.button}>
+                    <Typography className={classes.instructions}>
+                      All steps completed - you&quot;re finished
+                    </Typography>
+                    <Button
+                      onClick={this.handleReset}
+                      className={classes.button}
+                    >
                       Reset
                     </Button>
                   </div>
                 ) : (
                   <div>
-                    <Typography className={classes.instructions}>{this.getStepContent(activeStep)}</Typography>
+                    <Typography className={classes.instructions}>
+                      {this.getStepContent(activeStep)}
+                    </Typography>
                     <div>
-                      <Button disabled={activeStep === 0} onClick={this.handleBack} className={classes.button}>
+                      <Button
+                        disabled={activeStep === 0}
+                        onClick={this.handleBack}
+                        className={classes.button}
+                      >
                         Back
                       </Button>
-                      <Button variant="contained" color="primary" onClick={this.handleNext} className={classes.button}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={this.handleNext}
+                        className={classes.button}
+                      >
                         {activeStep === steps.length - 1 ? "Finish" : "Next"}
                       </Button>
                     </div>
